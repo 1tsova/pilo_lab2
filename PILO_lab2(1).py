@@ -4,7 +4,8 @@ def printGraf(graf):
         print(graf[i][0], '\t', graf[i][1], '\t', graf[i][2])
                 
 def isSimple(expr):     # элементарность функции перехода 
-    if (expr == '0') or (expr == '1'):
+    simb = ['0','1','a','b','c','d']
+    if expr in simb:
         return True
     else:
         return False
@@ -62,7 +63,7 @@ def orf():              # разбор по ИЛИ
 
 def andf():             # разбор по И
     global count, graf, numb
-    simb = '01'
+    simb = '01abc'
     was = False                 # были ли И в этом вызове функции
     noMult = False              # на текущей итерации нет И
     while (noMult == False):
@@ -107,6 +108,7 @@ def iterf():            # разбор итераций
 def diagram():
     global graf, count
     noE = False
+    pointS = -1         # для флажка, было ли хоть одно преобразование
     while noE == False:
         noE = True
         i = 0
@@ -121,10 +123,13 @@ def diagram():
             if (graf[i][0] == graf[pointZ][1]) and (graf[i][2] == 'e'):
                 pointZ = i
                 if graf[pointZ][1] == graf[pointS][0]:
+                    structEnd = graf[pointZ+1][::]
                     break #sycle
             i+=1
             
         if noE == False:
+            #if graf[pointZ][1] == graf[pointS][0]:
+             #   i = pointS
             if graf[pointS][0] in begins:
                 begins.add(graf[pointZ][1])
             if graf[pointZ][1] in ends:
@@ -139,7 +144,21 @@ def diagram():
                     i+=1
                 i+=1
             graf.pop(pointZ) # сначала добавить, потом pop        
-        
+    if pointS != -1:
+        i = 0
+        while i < len(graf):
+            if graf[i][0] not in begins:    # начальные на недостижимость проверять не надо
+                pastFree = True
+                j=0
+                while (j < len(graf)) and (pastFree == True):
+                    if graf[j][1] == graf[i][0]:
+                        pastFree = False
+                    j+=1
+                if pastFree == True:
+                    graf.pop(i)
+                    i-=1
+                    
+            i+=1
     
 
 struct = ['from', 'to', 'expr', False] # структура элемента графа. last - isSimple
@@ -178,9 +197,9 @@ while (AllSimple == False):         # пока все функции переходов не танут элемен
         
     numb = 0
     while numb<len(graf):
-        #if iterf():                 # разбираем каждую функцию по циклам
-        #    print(graf)
-        iterf()
+        if iterf():                 # разбираем каждую функцию по циклам
+            print(graf)
+        #iterf()
         numb+=1      
 
     for k in range(len(graf)):    
@@ -190,3 +209,5 @@ printGraf(graf)
 diagram()
 print(begins, ends)
 printGraf(graf)
+
+"""добавить зацикленность е-дуг"""
