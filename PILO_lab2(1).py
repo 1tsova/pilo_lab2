@@ -1,3 +1,8 @@
+def printGraf(graf):
+    print('откуда\tкуда\tпо чему')
+    for i in range(len(graf)):
+        print(graf[i][0], '\t', graf[i][1], '\t', graf[i][2])
+                
 def isSimple(expr):     # элементарность функции перехода 
     if (expr == '0') or (expr == '1'):
         return True
@@ -45,7 +50,7 @@ def orf():              # разбор по ИЛИ
             temp.append(s[p1:p2+1])
         i+=1
     for j in range(len(temp)):
-        struct = [graf[numb][0], graf[numb][1], temp[j], isSimple(temp[j]), graf[numb][4]]  # добавляем в граф элементы, разветвленные по ИЛИ
+        struct = [graf[numb][0], graf[numb][1], temp[j], isSimple(temp[j])]  # добавляем в граф элементы, разветвленные по ИЛИ
         graf.insert(numb+1+j, struct)
     if len(temp)>0:                         # если разветвления были, то
         graf.pop(numb)                      # удаляем текущее 
@@ -68,9 +73,9 @@ def andf():             # разбор по И
             if s[i] == '(':         # пропускаем внутеренности скобок
                 i = skip(s, i+1)-1
             elif (s[i] in simb+'*+)') and (s[i+1] in simb+'('):     # увидели комбинацию, которая есть И
-                struct = [lett[count], graf[numb][1], s[i+1:], isSimple(s[i+1:]), graf[numb][4]] # все что после И в новый элемент (с начальной новой буквой)
+                struct = [lett[count], graf[numb][1], s[i+1:], isSimple(s[i+1:])] # все что после И в новый элемент (с начальной новой буквой)
                 graf.insert(numb+1,struct)
-                graf[numb] = [graf[numb][0], lett[count], s[:i+1], isSimple(s[:i+1]), False]     # все что до И меняем в текущем элементе (с конечной новой буквой)
+                graf[numb] = [graf[numb][0], lett[count], s[:i+1], isSimple(s[:i+1])]     # все что до И меняем в текущем элементе (с конечной новой буквой)
                 count+=1            # для того чтобы следующая добавленная буква была новой
                 noMult = False
                 was = True
@@ -85,21 +90,59 @@ def iterf():            # разбор итераций
     s = graf[numb][2]
     if s[-1] == '+' or s[-1] == '*':        # + и * могут стоять только на последнем месте
         if s[-1] == '+':
-            struct = [lett[count], graf[numb][1], s[:len(s)-1], isSimple(s[:len(s)-1]), graf[numb][4]] # вторая дуга по функции для +
+            struct = [lett[count], graf[numb][1], s[:len(s)-1], isSimple(s[:len(s)-1])] # вторая дуга по функции для +
         else:
-            struct = [lett[count], graf[numb][1], 'e', True, graf[numb][4]]                            # вторая дуга также по e для *
+            struct = [lett[count], graf[numb][1], 'e', True]                            # вторая дуга также по e для *
         graf.insert(numb+1,struct)
-        struct = [lett[count], lett[count], s[:len(s)-1], isSimple(s[:len(s)-1]), False]               # кольцевая дуга по функции для всех
+        struct = [lett[count], lett[count], s[:len(s)-1], isSimple(s[:len(s)-1])]               # кольцевая дуга по функции для всех
         graf.insert(numb+1,struct)                
-        graf[numb] = [graf[numb][0], lett[count], 'e', True, False]                                    # перва дуга по е для всех
+        graf[numb] = [graf[numb][0], lett[count], 'e', True]                            # перва дуга по е для всех
         count+=1            # новая буква
         numb+=2             # две новые связи
         return True
     else:
         return False
+    
+    
+def diagram():
+    global graf, count
+    noE = False
+    while noE == False:
+        noE = True
+        i = 0
+        while i < len(graf):
+            if graf[i][2] == 'e':
+                noE = False
+                pointS = i
+                pointZ = i
+                break
+            i+=1
+        while i < len(graf):
+            if (graf[i][0] == graf[pointZ][1]) and (graf[i][2] == 'e'):
+                pointZ = i
+                if graf[pointZ][1] == graf[pointS][0]:
+                    break #sycle
+            i+=1
+            
+        if noE == False:
+            if graf[pointS][0] in begins:
+                begins.add(graf[pointZ][1])
+            if graf[pointZ][1] in ends:
+                ends.add(graf[pointZ][0])
+            kol=0
+            i=0
+            while i < len(graf):
+                if graf[i][0] == graf[pointZ][1]:
+                    kol+=1
+                    struct = [graf[pointZ][0], graf[i][1], graf[i][2], graf[i][3]]
+                    graf.insert(i-1+kol, struct)
+                    i+=1
+                i+=1
+            graf.pop(pointZ) # сначала добавить, потом pop        
+        
+    
 
-
-struct = ['from', 'to', 'expr', False, True] # структура элемента графа. last two - isSimple, isEnd
+struct = ['from', 'to', 'expr', False] # структура элемента графа. last - isSimple
 lett = list('QWERTYUIOPADFGHJKLXCVBNM')
 lett.sort()
 count=0             # порядковый номер добавляемого состояния (для lett(count++))
@@ -107,8 +150,10 @@ count=0             # порядковый номер добавляемого состояния (для lett(count++)
 print('Enter a string: ')
 S = input()
 
-graf = []
-struct = ['S', 'Z', S, isSimple(S), True]   # добавляем первый элемент в граф (из S по введенной функции в Z)
+begins = {'S'}               # множество начальных состояний
+ends = {'Z'}                 # множество конечных состояний
+graf = []                                   # начинаем строить граф
+struct = ['S', 'Z', S, isSimple(S)]   # добавляем первый элемент в граф (из S по введенной функции в Z)
 graf.append(struct)
 
 
@@ -119,21 +164,29 @@ while (AllSimple == False):         # пока все функции переходов не танут элемен
     
     numb = 0
     while numb < len(graf):
-        if orf():                   # разбираем каждую функцию графа по ИЛИ
-            print(graf)
+        #if orf():                   # разбираем каждую функцию графа по ИЛИ
+        #    print(graf)
+        orf()
         numb+=1
     
     numb = 0
     while numb < len(graf):
-        if andf():                  # разбираем каждую функцию графа по ИЛИ
-            print(graf)
+        #if andf():                  # разбираем каждую функцию графа по ИЛИ
+        #    print(graf)
+        andf()
         numb+=1
         
     numb = 0
     while numb<len(graf):
-        if iterf():                 # разбираем каждую функцию по циклам
-            print(graf)
+        #if iterf():                 # разбираем каждую функцию по циклам
+        #    print(graf)
+        iterf()
         numb+=1      
 
     for k in range(len(graf)):    
         AllSimple = AllSimple and graf[k][3]        # логически перемножаем поля isSimple элементов графа
+
+printGraf(graf)
+diagram()
+print(begins, ends)
+printGraf(graf)
