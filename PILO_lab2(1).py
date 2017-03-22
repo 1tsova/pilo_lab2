@@ -89,14 +89,14 @@ def iterf():            # разбор итераций
     global count, graf, numb
     s = graf[numb][2]
     if s[-1] == '+' or s[-1] == '*':        # + и * могут стоять только на последнем месте
-        if s[-1] == '+':
-            struct = [lett[count], graf[numb][1], s[:len(s)-1], isSimple(s[:len(s)-1])] # вторая дуга по функции для +
-        else:
-            struct = [lett[count], graf[numb][1], 'e', True]                            # вторая дуга также по e для *
+        struct = [lett[count], graf[numb][1], 'e', True]                            # вторая дуга для всех по e
         graf.insert(numb+1,struct)
         struct = [lett[count], lett[count], s[:len(s)-1], isSimple(s[:len(s)-1])]               # кольцевая дуга по функции для всех
         graf.insert(numb+1,struct)                
-        graf[numb] = [graf[numb][0], lett[count], 'e', True]                            # перва дуга по е для всех
+        if s[-1] == '+':
+            graf[numb] = [graf[numb][0], lett[count], s[:len(s)-1], isSimple(s[:len(s)-1])] # перва дуга по функции для +
+        else:
+            graf[numb] = [graf[numb][0], lett[count], 'e', True]                            # первая дуга по е для *
         count+=1            # новая буква
         numb+=2             # две новые связи
         return True
