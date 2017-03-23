@@ -1,8 +1,14 @@
 def printGraf(graf):
-    print('from\tto\thow')
+    print('from\tto\thow\tbegin\tend')
     for i in range(len(graf)):
-        print(graf[i][0], '\t', graf[i][1], '\t', graf[i][2])
-                
+        print(graf[i][0], graf[i][1], graf[i][2], int(graf[i][0] in begins), int(graf[i][1] in ends), sep = '\t')
+    print()
+    
+def printTable(nka):
+    print('begin\t \t0\t1\tend')
+    for i in (nka):
+        print(i[-1], i[0], i[1], i[2], i[3], sep = '\t')
+
 def isSimple(expr):     
     simb = ['0','1','a','b','c','d']
     if expr in simb:
@@ -27,6 +33,18 @@ def brackets(s):
         return s[1:len(s)-1]
     else:
         return s
+    
+def refreshBeginEnd(graf, listBE):                  
+    for lett in listBE:                             
+        isInGraf = False                            
+        i = 0                                       
+        while (i < len(graf)) and (isInGraf == False):
+            if (graf[i][0] == lett) or (graf[i][1] == lett):
+                isInGraf = True
+            i+=1
+        if isInGraf == False:
+            listBE.remove(lett)
+    return listBE
     
 
 def orf():              
@@ -105,88 +123,123 @@ def iterf():
         return False
     
     
-def diagram():
+def diagram():                                  
     global graf, count
-    noE = False
+    noE = False                                 
     pointS = -1         
     while noE == False:
         noE = True
         i = 0
-        epoints = []
-        esycle = []
+        epoints = []        
+        esycle = []         
         while i < len(graf):
-            if graf[i][2] == 'e':
+            if graf[i][2] == 'e':   
                 noE = False
-                pointS = i
-                pointZ = i
+                pointS = i          
+                pointZ = i          
                 epoints.append(graf[i][0])
                 break
             i+=1
         while i < len(graf):
-            if (graf[i][0] == graf[pointZ][1]) and (graf[i][2] == 'e'):
-                pointZ = i
+            if (graf[i][0] == graf[pointZ][1]) and (graf[i][2] == 'e'):     
+                pointZ = i                                                  
                 epoints.append(graf[i][0])
-                if graf[i][1] in epoints:
+                if graf[i][1] in epoints:                                   
                     esycle = epoints[epoints.index(graf[i][1]):]
                     break 
             i+=1
             
-        if noE == False:
-            if graf[pointZ][1] in epoints:
-                for j in esycle:
-                    if j in begins:
-                        begins.add(esycle[0])
-                    if j in ends:
-                        ends.add(esycle[0])
+        if noE == False:                        
+            if graf[pointZ][1] in epoints:      
+                for j in esycle:                
+                    if j in begins:             
+                        begins.append(esycle[0])
+                    if j in ends:               
+                        ends.append(esycle[0])
                         
                 i = 0
-                pos = 0
-                while i < len(graf):
+                while i < len(graf):            
                     if graf[i][0] in esycle:
                         graf[i][0] = esycle[0]
                     if graf[i][1] in esycle:
                         graf[i][1] = esycle[0]
                     
                     i+=1
+                
                 i = 0
-                while i < len(graf):
+                while i < len(graf):            
                     if (graf[i][0] == esycle[0]) and (graf[i][1] == esycle[0]) and (graf[i][2] == 'e'):
                         graf.pop(i)
                         i-=1
                     i+=1
                         
-            else:                 
-                if graf[pointS][0] in begins:
-                    begins.add(graf[pointZ][1])
-                if graf[pointZ][1] in ends:
-                    ends.add(graf[pointZ][0])
-                kol=0
+            else:                                   
+                if graf[pointS][0] in begins:       
+                    begins.append(graf[pointZ][1])
+                if graf[pointZ][1] in ends:         
+                    ends.append(graf[pointZ][0])    
+                kol=0                               
                 i=0
-                while i < len(graf):
-                    if graf[i][0] == graf[pointZ][1]:
+                while i < len(graf):    
+                    if graf[i][0] == graf[pointZ][1]:       
                         kol+=1
                         struct = [graf[pointZ][0], graf[i][1], graf[i][2], graf[i][3]]
                         graf.insert(i-1+kol, struct)
                         i+=1
                     i+=1
-                graf.pop(pointZ) 
+                graf.pop(pointZ)        
 
-    if pointS != -1:
+    if pointS != -1:                    
         i = 0
         while i < len(graf):
             if graf[i][0] not in begins:    
                 pastFree = True
                 j=0
                 while (j < len(graf)) and (pastFree == True):
-                    if graf[j][1] == graf[i][0]:
+                    if graf[j][1] == graf[i][0]:        
                         pastFree = False
                     j+=1
-                if pastFree == True:
-                    graf.pop(i)
-                    i-=1
-                    
+                if pastFree == True:        
+                    graf.pop(i)             
+                    i-=1                   
             i+=1
-
+            
+def NKA (graf):
+    nka = []
+    numb = -1
+    graf.sort()                 
+    curr = ''
+    for i in range (len(graf)):
+        if graf[i][0] != curr:
+            numb += 1
+            curr = graf[i][0]
+            if graf[i][2] == '0':
+                line = [curr, graf[i][1], '', curr in ends, curr in begins]
+            elif graf[i][2] == '1':
+                line = [curr, '', graf[i][1], curr in ends, curr in begins]
+            nka.append(line)
+        else:
+            if graf[i][2] == '0':
+                nka[numb][1] += graf[i][1]
+            elif graf[i][2] == '1':            
+                nka[numb][2] += graf[i][1]
+    
+    i = 0  
+    while i < len(nka):
+        if nka[i][4]:
+            nka.insert(0, nka[i])
+            nka.pop(i+1)
+        i+=1
+        
+    i = 0    
+    while i < len(nka):
+        if (nka[i][3] == True) and (nka[i][4] == False): 
+            nka.append(nka[i])
+            nka.pop(i)
+        else:
+            i+=1
+    
+    return nka
 
 struct = ['from', 'to', 'expr', False] 
 lett = list('QWERTYUIOPADFGHJKLXCVBNM')
@@ -196,8 +249,8 @@ count=0
 print('Enter a string: ')
 S = input()
 
-begins = {'S'}               
-ends = {'Z'}                 
+begins = ['S']               
+ends = ['Z']                 
 graf = []                                   
 struct = ['S', 'Z', S, isSimple(S)]   
 graf.append(struct)
@@ -224,9 +277,9 @@ while (AllSimple == False):
         
     numb = 0
     while numb<len(graf):
-        if iterf():                 
-            print(graf)
         
+        
+        iterf()
         numb+=1      
 
     for k in range(len(graf)):    
@@ -234,5 +287,8 @@ while (AllSimple == False):
 
 printGraf(graf)
 diagram()
-print(begins, ends)
+begins = refreshBeginEnd(graf, begins)
+ends = refreshBeginEnd(graf, ends)
 printGraf(graf)
+nka = NKA(graf)
+printTable(nka)
