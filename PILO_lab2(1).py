@@ -13,7 +13,7 @@ def printTable(ka):
     print()
     
 def isSimple(expr):     # элементарность функции перехода 
-    simb = ['0','1','a','b','c','d']
+    simb = ['0','1']
     if expr in simb:
         return True
     else:
@@ -84,7 +84,7 @@ def orf():              # разбор по ИЛИ
 
 def andf():             # разбор по И
     global count, graf, numb
-    simb = '01abc'
+    simb = '01'
     was = False                 # были ли И в этом вызове функции
     noMult = False              # на текущей итерации нет И
     while (noMult == False):
@@ -116,7 +116,7 @@ def iterf():            # разбор итераций
         struct = [lett[count], lett[count], s[:len(s)-1], isSimple(s[:len(s)-1])]               # кольцевая дуга по функции для всех
         graf.insert(numb+1,struct)                
         if s[-1] == '+':
-            graf[numb] = [graf[numb][0], lett[count], s[:len(s)-1], isSimple(s[:len(s)-1])] # перва дуга по функции для +
+            graf[numb] = [graf[numb][0], lett[count], s[:len(s)-1], isSimple(s[:len(s)-1])] # первая дуга по функции для +
         else:
             graf[numb] = [graf[numb][0], lett[count], 'e', True]                            # первая дуга по е для *
         count+=1            # новая буква
@@ -294,18 +294,27 @@ def DKA(nka):
                 dka[-1][1].sort()
                 dka[-1][2].sort()                
         i+=1
-    
+        
     # устранияем эквивалентные состояния
     i = 0
     while i < len(dka):
         j = 0
+        equi = []
         while j < len(dka):
             if (dka[i][1:] == dka[j][1:]) and (i != j): # если у двух состояний все поля одинаковые, кроме названия,
+                equi.append(dka[j][0])
                 dka.pop(j)                              # то второе удаляем
                 j-=1
             j+=1
+        if equi:                                        # если для текущего состояния были эквивалентные,
+            for j in range (len(dka)):                  # то везде где они встречаются заменяем на текущее
+                for k in range (1,3):
+                    if dka[j][k] in equi:
+                        dka[j][k] = dka[i][0]
         i+=1  
     return dka
+        
+
 
 struct = ['from', 'to', 'expr', False] # структура элемента графа. last - isSimple
 lett = list('QWERTYUIOPADFGHJKLXCVBNM')
@@ -324,7 +333,7 @@ graf.append(struct)
 
 AllSimple = False
 
-while (AllSimple == False):         # пока все функции переходов не танут элементарными
+while (AllSimple == False):         # пока все функции переходов не станут элементарными
     AllSimple = True
     
     numb = 0
@@ -336,7 +345,7 @@ while (AllSimple == False):         # пока все функции переходов не танут элемен
     
     numb = 0
     while numb < len(graf):
-        #if andf():                  # разбираем каждую функцию графа по ИЛИ
+        #if andf():                  # разбираем каждую функцию графа по И
         #    print(graf)
         andf()
         numb+=1
@@ -351,15 +360,18 @@ while (AllSimple == False):         # пока все функции переходов не танут элемен
     for k in range(len(graf)):    
         AllSimple = AllSimple and graf[k][3]        # логически перемножаем поля isSimple элементов графа
 
-print('')
+print('----------Система переходов---------')
 printGraf(graf)
 diagram()
 begins = refreshBeginEnd(graf, begins)
 ends = refreshBeginEnd(graf, ends)
+print('--------Диаграмма состояний---------')
 printGraf(graf)
 nka = NKA(graf)
+print('---------------НКА------------------')
 printTable(nka)
 dka = DKA(nka)
+print('---------------ДКА------------------')
 printTable(dka)
 
 

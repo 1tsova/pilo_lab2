@@ -188,10 +188,12 @@ def diagram():
                         kol+=1
                         struct = [graf[pointZ][0], graf[i][1], graf[i][2], graf[i][3]]
                         graf.insert(i-1+kol, struct)
+                        if pointZ > i-1+kol: #kz
+                            pointZ+=1       #kz
                         i+=1
                     i+=1
                 graf.pop(pointZ)        
-        printGraf(graf)
+                
     if pointS != -1:                    
         i = 0
         while i < len(graf):
@@ -206,7 +208,7 @@ def diagram():
                     graf.pop(i)             
                     i-=1                   
             i+=1
-    printGraf(graf)
+            
 def NKA (graf):
     nka = []
     numb = -1
