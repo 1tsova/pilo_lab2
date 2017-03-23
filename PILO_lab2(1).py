@@ -256,8 +256,6 @@ def NKA (graf):
     return nka
 
 def DKA(nka):
-    #nka = [['A', 'AB', 'C', False, True], ['B', '', 'C', True, True], ['C', '', 'AC', True, False]]
-    #begins = ['A','B']
     begins.sort()
     dka = [[begins, [], [], False, False]]
     newPositions = [dka[0][0]]
@@ -344,12 +342,13 @@ while (AllSimple == False):         # пока все функции переходов не танут элемен
         AllSimple = AllSimple and graf[k][3]        # логически перемножаем поля isSimple элементов графа
 
 printGraf(graf)
-print(graf)
-#diagram()
+diagram()
 begins = refreshBeginEnd(graf, begins)
 ends = refreshBeginEnd(graf, ends)
 printGraf(graf)
-"""nka = NKA(graf)
+nka = NKA(graf)
 printTable(nka)
 dka = DKA(nka)
-printTable(dka)"""
+printTable(dka)
+
+
