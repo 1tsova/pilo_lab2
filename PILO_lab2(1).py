@@ -1,8 +1,8 @@
 def printGraf(graf):
-    print('from\tto\thow\tbegin\tend')
+    print('begin\tfrom\thow\tto\tend')
     print('------------------------------------')
     for i in range(len(graf)):
-        print(graf[i][0], graf[i][1], graf[i][2], '1' if graf[i][0] in begins else '', '1' if (graf[i][1] in ends) else '', sep = '\t')
+        print('  1\t' if graf[i][0] in begins else '  \t', graf[i][0], '-----', graf[i][2], '---->', graf[i][1], '\t', '1' if (graf[i][1] in ends) else '')
     print()
     
 def printTable(ka):
@@ -215,29 +215,29 @@ def NKA (graf):
     graf.sort()                 # сортируем граф по названию вершин дл€ удобства
     curr = ['']
     for i in range (len(graf)):
-        if graf[i][0] != curr[0]:
-            numb += 1
-            curr[0] = graf[i][0]
-            if graf[i][2] == '0':
+        if graf[i][0] != curr[0]:       # если это нова€ буква (такой еще нет в нка)
+            numb += 1                   # то создаем новую строчку
+            curr[0] = graf[i][0]        # и называем ее этой буквой
+            if graf[i][2] == '0':       # если переход по 0, добавл€ем состо€ние куда переходим в первый столбик текущей строки
                 line = [curr[:], [graf[i][1]], [], curr[0] in ends, curr[0] in begins]
-            elif graf[i][2] == '1':
+            elif graf[i][2] == '1':     # если переход по 1, добавл€ем состо€ние куда переходим во второй столбик текущей строки
                 line = [curr[:], [], [graf[i][1]], curr[0] in ends, curr[0] in begins]
             nka.append(line)
-        else:
-            if graf[i][2] == '0':
-                nka[numb][1].append(graf[i][1])
+        else:                           # если така€ строка уже есть, 
+            if graf[i][2] == '0':           
+                nka[numb][1].append(graf[i][1])     #то дописываем переходы в нужный столбик (0 или 1)
             elif graf[i][2] == '1':            
                 nka[numb][2].append(graf[i][1])
-    for lett in ends:
-        isInNka = False        
-        for j in range(len(nka)):
+    for lett in ends:                               #  отдельно дл€ конечных состо€ний
+        isInNka = False                             # (поскольку из них может ничего не выходить)
+        for j in range(len(nka)):                   
             if nka[j][0][0] == lett:
                 isInNka = True
-        if isInNka == False:
+        if isInNka == False:                        # находим подобное состо€ние и тоже добавл€ем его в Ќ ј
             nka.append([[lett], [], [], lett in ends, lett in begins])
     
-    i = 0  
-    while i < len(nka):
+    i = 0                                             # сортируем таблицу дл€ красоты
+    while i < len(nka):                         # вытаскиваем начальные наверх      
         if nka[i][4]:
             nka.insert(0, nka[i])
             nka.pop(i+1)
@@ -245,7 +245,7 @@ def NKA (graf):
 
     kol = 0
     i = 0    
-    while i < len(nka) - kol:
+    while i < len(nka) - kol:                   # конечные (и не начальные) сдвигаем вниз
         if (nka[i][3] == True) and (nka[i][4] == False): 
             kol+=1
             nka.append(nka[i])
@@ -257,29 +257,29 @@ def NKA (graf):
 
 def DKA(nka):
     begins.sort()
-    dka = [[begins, [], [], False, False]]
-    newPositions = [dka[0][0]]
+    dka = [[begins, [], [], False, False]]          # инициализируем первую строку ƒ ј множеством нач. состо€ний
+    newPositions = [dka[0][0]]                      # в NewPositions храним все уже созданные состо€ни€ ƒ ј
     
-    for lett in begins:
+    for lett in begins:                             # дл€ того чтобы заполнить первую строку, идем по нач. состо€ни€м
         for i in range (len(nka)):
-            if nka[i][0][0] == lett:
-                for l in range (len(nka[i][1])):
-                    if nka[i][1][l] not in dka[0][1]:
+            if nka[i][0][0] == lett:                # в Ќ ј находим состо€ние с это буквой
+                for l in range (len(nka[i][1])):    # и добавл€ем ее переходы в таблицу, если их в этой строчке еще нет
+                    if nka[i][1][l] not in dka[0][1]:   
                         dka[0][1].append(nka[i][1][l])
                 for l in range (len(nka[i][2])):
                     if nka[i][2][l] not in dka[0][2]:
                         dka[0][2].append(nka[i][2][l])                
-                dka[0][3] = dka[0][3] or nka[i][3]
-                dka[0][4] = dka[0][3] or nka[i][4]
-    dka[0][1].sort()
+                dka[0][3] = dka[0][3] or nka[i][3]      # если среди них были конечные, сделать строку конечной
+                dka[0][4] = dka[0][3] or nka[i][4]      # если начальные, сделать начальной
+    dka[0][1].sort()            # сортируем полученные переходы чтобы не былы двух разных состо€ний типа ј¬ и ¬ј
     dka[0][2].sort()
     i = 0
-    while i < len(dka):
-        for j in range (1,3):
-            if dka[i][j] not in newPositions:
-                newPositions.append(dka[i][j])
-                line = [dka[i][j], [], [], False, False]
-                for lett in (dka[i][j]):
+    while i < len(dka):                 # идем по всем имеющимс€ строкам ƒ ј 
+        for j in range (1,3):           # и по их переходам по 0 и 1
+            if dka[i][j] not in newPositions:       # если еще нет строки с там переходом,
+                newPositions.append(dka[i][j])      # то создаем его
+                line = [dka[i][j], [], [], False, False]    # и так же, как € дл€ первого состо€ни€ (описано выше),
+                for lett in (dka[i][j]):                    # заполн€ем его переходы
                     for k in range (len(nka)):
                         if nka[k][0][0] == lett:
                             for l in range (len(nka[k][1])):
@@ -295,6 +295,16 @@ def DKA(nka):
                 dka[-1][2].sort()                
         i+=1
     
+    # устрани€ем эквивалентные состо€ни€
+    i = 0
+    while i < len(dka):
+        j = 0
+        while j < len(dka):
+            if (dka[i][1:] == dka[j][1:]) and (i != j): # если у двух состо€ний все пол€ одинаковые, кроме названи€,
+                dka.pop(j)                              # то второе удал€ем
+                j-=1
+            j+=1
+        i+=1  
     return dka
 
 struct = ['from', 'to', 'expr', False] # структура элемента графа. last - isSimple
@@ -341,6 +351,7 @@ while (AllSimple == False):         # пока все функции переходов не танут элемен
     for k in range(len(graf)):    
         AllSimple = AllSimple and graf[k][3]        # логически перемножаем пол€ isSimple элементов графа
 
+print('')
 printGraf(graf)
 diagram()
 begins = refreshBeginEnd(graf, begins)
