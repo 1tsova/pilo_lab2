@@ -188,6 +188,8 @@ def diagram():                                  # функция строим диаграмму состо
                         kol+=1
                         struct = [graf[pointZ][0], graf[i][1], graf[i][2], graf[i][3]]
                         graf.insert(i-1+kol, struct)
+                        if pointZ > i-1+kol: 
+                            pointZ+=1                               
                         i+=1
                     i+=1
                 graf.pop(pointZ)        # удаляем последнюю связь с е-дугой
@@ -226,7 +228,6 @@ def NKA (graf):
                 nka[numb][1].append(graf[i][1])
             elif graf[i][2] == '1':            
                 nka[numb][2].append(graf[i][1])
-    print(nka)
     for lett in ends:
         isInNka = False        
         for j in range(len(nka)):
@@ -343,11 +344,12 @@ while (AllSimple == False):         # пока все функции переходов не танут элемен
         AllSimple = AllSimple and graf[k][3]        # логически перемножаем поля isSimple элементов графа
 
 printGraf(graf)
-diagram()
+print(graf)
+#diagram()
 begins = refreshBeginEnd(graf, begins)
 ends = refreshBeginEnd(graf, ends)
 printGraf(graf)
-nka = NKA(graf)
+"""nka = NKA(graf)
 printTable(nka)
 dka = DKA(nka)
-printTable(dka)
+printTable(dka)"""

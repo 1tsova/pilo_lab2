@@ -1,14 +1,17 @@
 def printGraf(graf):
     print('from\tto\thow\tbegin\tend')
+    print('------------------------------------')
     for i in range(len(graf)):
-        print(graf[i][0], graf[i][1], graf[i][2], int(graf[i][0] in begins), int(graf[i][1] in ends), sep = '\t')
+        print(graf[i][0], graf[i][1], graf[i][2], '1' if graf[i][0] in begins else '', '1' if (graf[i][1] in ends) else '', sep = '\t')
     print()
     
-def printTable(nka):
+def printTable(ka):
     print('begin\t \t0\t1\tend')
-    for i in (nka):
-        print(i[-1], i[0], i[1], i[2], i[3], sep = '\t')
-
+    print('------------------------------------')
+    for i in (ka):
+        print('->' if i[-1] else '', ''.join(i[0]), ''.join(i[1]), ''.join(i[2]), '1' if i[3] else '', sep = '\t')
+    print()
+    
 def isSimple(expr):     
     simb = ['0','1','a','b','c','d']
     if expr in simb:
@@ -188,7 +191,7 @@ def diagram():
                         i+=1
                     i+=1
                 graf.pop(pointZ)        
-
+        printGraf(graf)
     if pointS != -1:                    
         i = 0
         while i < len(graf):
@@ -203,26 +206,33 @@ def diagram():
                     graf.pop(i)             
                     i-=1                   
             i+=1
-            
+    printGraf(graf)
 def NKA (graf):
     nka = []
     numb = -1
     graf.sort()                 
-    curr = ''
+    curr = ['']
     for i in range (len(graf)):
-        if graf[i][0] != curr:
+        if graf[i][0] != curr[0]:
             numb += 1
-            curr = graf[i][0]
+            curr[0] = graf[i][0]
             if graf[i][2] == '0':
-                line = [curr, graf[i][1], '', curr in ends, curr in begins]
+                line = [curr[:], [graf[i][1]], [], curr[0] in ends, curr[0] in begins]
             elif graf[i][2] == '1':
-                line = [curr, '', graf[i][1], curr in ends, curr in begins]
+                line = [curr[:], [], [graf[i][1]], curr[0] in ends, curr[0] in begins]
             nka.append(line)
         else:
             if graf[i][2] == '0':
-                nka[numb][1] += graf[i][1]
+                nka[numb][1].append(graf[i][1])
             elif graf[i][2] == '1':            
-                nka[numb][2] += graf[i][1]
+                nka[numb][2].append(graf[i][1])
+    for lett in ends:
+        isInNka = False        
+        for j in range(len(nka)):
+            if nka[j][0][0] == lett:
+                isInNka = True
+        if isInNka == False:
+            nka.append([[lett], [], [], lett in ends, lett in begins])
     
     i = 0  
     while i < len(nka):
@@ -230,16 +240,62 @@ def NKA (graf):
             nka.insert(0, nka[i])
             nka.pop(i+1)
         i+=1
-        
+
+    kol = 0
     i = 0    
-    while i < len(nka):
+    while i < len(nka) - kol:
         if (nka[i][3] == True) and (nka[i][4] == False): 
+            kol+=1
             nka.append(nka[i])
             nka.pop(i)
         else:
             i+=1
     
     return nka
+
+def DKA(nka):
+    
+    
+    begins.sort()
+    dka = [[begins, [], [], False, False]]
+    newPositions = [dka[0][0]]
+    
+    for lett in begins:
+        for i in range (len(nka)):
+            if nka[i][0][0] == lett:
+                for l in range (len(nka[i][1])):
+                    if nka[i][1][l] not in dka[0][1]:
+                        dka[0][1].append(nka[i][1][l])
+                for l in range (len(nka[i][2])):
+                    if nka[i][2][l] not in dka[0][2]:
+                        dka[0][2].append(nka[i][2][l])                
+                dka[0][3] = dka[0][3] or nka[i][3]
+                dka[0][4] = dka[0][3] or nka[i][4]
+    dka[0][1].sort()
+    dka[0][2].sort()
+    i = 0
+    while i < len(dka):
+        for j in range (1,3):
+            if dka[i][j] not in newPositions:
+                newPositions.append(dka[i][j])
+                line = [dka[i][j], [], [], False, False]
+                for lett in (dka[i][j]):
+                    for k in range (len(nka)):
+                        if nka[k][0][0] == lett:
+                            for l in range (len(nka[k][1])):
+                                if nka[k][1][l] not in line[1]:
+                                    line[1].append(nka[k][1][l])
+                            for l in range (len(nka[k][2])):
+                                if nka[k][2][l] not in line[2]:
+                                    line[2].append(nka[k][2][l])                                
+                            line[3] = line[3] or nka[k][3]
+                            line[4] = line[4] or nka[k][4]
+                dka.append(line)
+                dka[-1][1].sort()
+                dka[-1][2].sort()                
+        i+=1
+    
+    return dka
 
 struct = ['from', 'to', 'expr', False] 
 lett = list('QWERTYUIOPADFGHJKLXCVBNM')
@@ -256,34 +312,7 @@ struct = ['S', 'Z', S, isSimple(S)]
 graf.append(struct)
 
 
-AllSimple = False
-
-while (AllSimple == False):         
-    AllSimple = True
-    
-    numb = 0
-    while numb < len(graf):
-        
-        
-        orf()
-        numb+=1
-    
-    numb = 0
-    while numb < len(graf):
-        
-        
-        andf()
-        numb+=1
-        
-    numb = 0
-    while numb<len(graf):
-        
-        
-        iterf()
-        numb+=1      
-
-    for k in range(len(graf)):    
-        AllSimple = AllSimple and graf[k][3]        
+graf = [['S', 'Z', '1', True], ['S', 'A', '0', True], ['A', 'D', 'e', True], ['D', 'D', '1', True], ['D', 'B', 'e', True], ['B', 'E', 'e', True], ['E', 'G', '1', True], ['G', 'E', '0', True], ['E', 'H', '0', True], ['H', 'H', '0', True], ['H', 'E', 'e', True], ['E', 'C', 'e', True], ['C', 'F', '1', True], ['F', 'F', '1', True], ['F', 'Z', 'e', True]]
 
 printGraf(graf)
 diagram()
@@ -292,3 +321,5 @@ ends = refreshBeginEnd(graf, ends)
 printGraf(graf)
 nka = NKA(graf)
 printTable(nka)
+dka = DKA(nka)
+printTable(dka)
